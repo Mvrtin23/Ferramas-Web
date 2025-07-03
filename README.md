@@ -1,4 +1,4 @@
-# 🛠️ FERRAMAX
+# 🛠️ FERRAMAS
 
 **Ferramax** es una plataforma de comercio electrónico especializada en ferreterías. Permite gestionar inventario, realizar pagos en línea y manejar conversiones de divisas en tiempo real gracias a la integración de APIs externas.  
 
@@ -52,7 +52,7 @@ Ubicación requerida:
 bash
 Copiar
 Editar
-FERRAMAX_WEB_SERVICES/.env
+FERRAMAS_WEB_SERVICES/.env
 Puedes crearlo manualmente o ejecutar:
 
 powershell
