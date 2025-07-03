@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Carrito - Ferramax</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/carrito.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/69efc5c1d6.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <main class="main-cart">
+        <!-- Inicio Navbar  -->
+        <nav class="navbar navbar-expand-lg nav-color">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'welcome' %}">
+                    <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="Ferramax" width="170" height="50">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="{% url 'lista_productos' %}">Catalogo</a>
+                        </li> 
+                        <li class="nav-item">
+                            <a class="nav-link" style="color: white;" href="#">Contacto</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        {% if not request.session.user_logged_in %}
+                        <li>
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="" data-bs-toggle="modal" data-bs-target="#exampleModal">Inicio Sesion</a>
+                        </li>
+                        <li>
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="{% url 'register' %}">Registrar</a>
+                        </li>
+                        {% endif %}
+                        {% if request.session.user_logged_in %}
+                        <li>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                <i class="fa fa-circle-user fa-2x"></i>
+                            </button>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Fin Navbar -->
+         <!-- Offcanvas -->
+         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="background-color:#212529;">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">
+                    <img src="{% static  'imgs/page-imgs/Ferremax_logo.png' %}" alt="" width="180" height="70">
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column" style="min-height: 100%;">
+                {% if request.session.user_logged_in %}
+                <a href="" class="btn btn-outline-light mb-3">
+                    <i class="fa fa-user"></i> Perfil de usuario
+                </a>
+                <a href="" class="btn btn-outline-light mb-3">
+                    <i class="fa fa-shopping-cart"></i> Carrito
+                </a>
+                <div>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="fa fa-sign-out-alt"></i> Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Fin Offcanvas -->
+        <!-- Django Cart Content -->
+        {% if productos_carrito %}
+        <!-- Contenido del Carrito -->
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <div class="cart-container">
+                        <div class="cart-header text-center">
+                            <h2 class="text-title mb-0">
+                                <i class="fas fa-shopping-cart me-3"></i>
+                                Tu Carrito de Compras
+                            </h2>
+                        </div>
+
+                        <!-- Productos en el carrito -->
+                        <div class="p-4" id="cart-items">
+                            {% for item in productos_carrito %}
+                            <div class="cart-item p-3 {% if not forloop.last %}mb-3{% endif %}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2 col-12 text-center">
+                                        {% if item.producto.imagen %}
+                                            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="product-img">
+                                        {% else %}
+                                            <img src="https://via.placeholder.com/80x80/3498db/ffffff?text={{ item.producto.nombre|slice:':3'|upper }}" alt="{{ item.producto.nombre }}" class="product-img">
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 col-12 product-info">
+                                        <h5 class="text-title mb-1">{{ item.producto.nombre }}</h5>
+                                        <p class="text-muted mb-0">Precio unitario: ${{ item.producto.precio|floatformat:0 }}</p>
+                                    </div>
+                                    <div class="col-md-3 col-12 text-center">
+                                        <div class="quantity-controls">
+                                            <a href="{% url 'reducir_cantidad' item.producto.id %}" class="quantity-btn btn-decrease">
+                                                <i class="fas fa-minus"></i>
+                                            </a>
+                                            <span class="quantity-display fw-bold">{{ item.cantidad }}</span>
+                                            <a href="{% url 'agregar_al_carrito' item.producto.id %}" class="quantity-btn btn-increase">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-12 text-center">
+                                        <div class="fw-bold text-success">${{ item.subtotal|floatformat:0 }}</div>
+                                    </div>
+                                    <div class="col-md-1 col-12 text-center">
+                                        <a href="{% url 'eliminar_producto' item.producto.id %}" class="btn-remove" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Sección de Total y Botones de Pago -->
+                        <div class="total-section">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h3 class="text-title mb-0">
+                                        <i class="fas fa-calculator me-2"></i>
+                                        Total del Carrito
+                                    </h3>
+                                    <div class="mt-2">
+                                        <span class="fs-4 fw-bold">${{ total|floatformat:0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="payment-buttons">
+                                        <button class="btn btn-transfer" onclick="payWithTransfer()">
+                                            <i class="fas fa-university me-2"></i>
+                                            Pagar con Transferencia
+                                        </button>
+                                        <button id="btn-mercadopago" class="btn btn-mercadopago">
+                                            <i class="fas fa-credit-card me-2"></i>
+                                            Ir a Mercado Pago
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Volver al Catálogo -->
+                    <div class="text-center mt-4">
+                        <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Volver al Catálogo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Carrito Vacío -->
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8">
+                    <div class="cart-container">
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3 class="text-title">Tu carrito está vacío</h3>
+                            <p>¡Agrega algunos productos increíbles de nuestro catálogo!</p>
+                            <a href="{% url 'lista_productos' %}" class="btn btn-lg" style="background: linear-gradient(135deg, #f39c12, #e67e22); color: white; border: none; padding: 15px 40px; border-radius: 25px; text-decoration: none;">
+                                <i class="fas fa-tools me-2"></i>
+                                Explorar Catálogo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-color shadow-lg">
+        <div class="container justify-content-center">
+            <div class="row text-center text-md-start">
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-5">
+                    <div>
+                        <img src="/static/imgs/page-imgs/Ferremax_logo.png" alt="Ferramax" class="img-fluid" />
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto" style="color: white;">
+                    <div>
+                        <h5 class="text-title mt-4">Información</h5>
+                        <hr>
+                        <ul class="list-unstyled">
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Sobre Nosotros</a></li>
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Contáctanos</a></li>
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Política de Privacidad</a></li>
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Términos y Condiciones</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto" style="color: white;">
+                    <h5 class="text-title mt-4">Medios de Pago</h5>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li><a href="#" style="color: white;" class="text-decoration-none">Visa</a></li>
+                        <li><a href="#" style="color: white;" class="text-decoration-none">Mastercard</a></li>
+                        <li><a href="#" style="color: white;" class="text-decoration-none">American Express</a></li>
+                        <li><a href="#" style="color: white;" class="text-decoration-none">PayPal</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Log In -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color:#212529;">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">
+                            <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="" width="180" height="70" class="img-fluid">
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label" style="color:white;">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" name="email" placeholder="Ingresa su email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label" style="color:white;">Contraseña</label>
+                                <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Ingresa su contraseña" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-dark" id="btn-login" style="font-size: larger;">Sign In</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>
+        var userLoggedIn = "{{ request.session.user_logged_in|yesno:'true,false' }}";
+    </script>
+    <script rel="stylesheet" href="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/carrito.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+</body>
+</html>

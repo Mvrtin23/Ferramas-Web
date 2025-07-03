@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferramax - Echale un vistazo a nuestro catálogo!!</title>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/69efc5c1d6.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <main>
+        <!-- Inicio Navbar  -->
+        <nav class="navbar navbar-expand-lg nav-color">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'welcome' %}">
+                    <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="Ferramax" width="170" height="50">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="{% url 'lista_productos' %}">Catalogo</a>
+                        </li> 
+                        <li class="nav-item">
+                            <a class="nav-link" style="color: white;" href="#">Contacto</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        {% if not request.session.user_logged_in %}
+                        <li>
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="" data-bs-toggle="modal" data-bs-target="#exampleModal">Inicio Sesion</a>
+                        </li>
+                        <li>
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="{% url 'register' %}">Registrar</a>
+                        </li>
+                        {% endif %}
+                        {% if request.session.user_logged_in %}
+                        <li>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                <i class="fa fa-circle-user fa-2x"></i>
+                            </button>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Fin Navbar -->
+        <!-- Offcanvas -->
+         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="background-color:#212529;">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">
+                    <img src="{% static  'imgs/page-imgs/Ferremax_logo.png' %}" alt="" width="180" height="70">
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column" style="min-height: 100%;">
+                {% if request.session.user_logged_in %}
+                <a href="" class="btn btn-outline-light mb-3">
+                    <i class="fa fa-user"></i> Perfil de usuario
+                </a>
+                <a href="" class="btn btn-outline-light mb-3">
+                    <i class="fa fa-shopping-cart"></i> Carrito
+                </a>
+                <div>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="fa fa-sign-out-alt"></i> Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Fin Offcanvas -->
+        <!-- Formulario de Registro -->
+        <div class="container mt-5 mb-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2 class="text-center">Registro</h2>
+                    <form id="register-form" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nombre</label><span style="color: red;">*</span>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label><span style="color: red;">*</span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rut" class="form-label">Rut</label><span style="color: red;">*</span>
+                            <input type="text" class="form-control" id="rut" name="rut" placeholder="Ingrese su rut">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Teléfono</label><span style="color: red;">*</span>
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Ingrese su teléfono" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label><span style="color: red;">*</span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña" required>
+                        </div>
+                        <button type="submit" id="btnRegister" class="btn btn-dark">Registrar</button>
+                    </form>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <p>¿Ya tienes una cuenta? <a href="/Ferramax/templates/views/login.html">Inicia sesión</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <p>¿Olvidaste tu contraseña? <a href="/Ferramax/templates/views/reset_password.html">Recuperar contraseña</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fin Formulario de Registro -->
+    </main>
+    <footer class="footer-color shadow-lg" id="footer-section">
+        <div class="container justify-content-center">
+            <div class="row text-center text-md-start">
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-5">
+                    <div>
+                        <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="Ferramax" class="img-fluid" />
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto" style="color: white;">
+                    <div>
+                        <h5 class="text-title mt-4">Información</h5>
+                        <hr>
+                        <ul class="list-unstyled">
+                            <li>
+                                <a href="" style="color: white;" class="text-decoration-none">Quienes somos?</a>
+                            </li>
+                            <li>
+                                <a href="#" style="color: white;" class="text-decoration-none">Hablemos</a>
+                            </li>
+                            <li>
+                                <a href="#" style="color: white;" class="text-decoration-none">Política de Privacidad</a>
+                            </li>
+                            <li>
+                                <a href="#" style="color: white;" class="text-decoration-none">Términos y Condiciones</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto" style="color: white;">
+                    <h5 class="text-title mt-4">Metodos de Pago</h5>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li>
+                            <a href="#" style="color: white;" class="text-decoration-none">Visa</a>
+                        </li>
+                        <li>
+                            <a href="#" style="color: white;" class="text-decoration-none">Mastercard</a>
+                        </li>
+                        <li>
+                            <a href="#" style="color: white;" class="text-decoration-none">American Express</a>
+                        </li>
+                        <li>
+                            <a href="#" style="color: white;" class="text-decoration-none">PayPal</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Log In -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color:#212529;">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">
+                            <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="" width="180" height="70" class="img-fluid">
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label" style="color:white;">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" name="email" placeholder="Ingresa su email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label" style="color:white;">Contraseña</label>
+                                <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Ingresa su contraseña" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-dark" id="btn-login" style="font-size: larger;">Sign In</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+</body>
+</html>
