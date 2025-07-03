@@ -1,0 +1,290 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ferramax - Echale un Vistazo a Nuestro Amplio Catalogo</title>
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/69efc5c1d6.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <main class="main-catalog">
+        <!-- Inicio Navbar  -->
+        <nav class="navbar navbar-expand-lg nav-color">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'welcome' %}">
+                    <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="Ferramax" width="170" height="50">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="{% url 'lista_productos' %}">Catalogo</a>
+                        </li> 
+                        <li class="nav-item">
+                            <a class="nav-link" style="color: white;" href="#">Contacto</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        {% if not request.session.user_logged_in %}
+                        <li>
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="" data-bs-toggle="modal" data-bs-target="#exampleModal">Inicio Sesion</a>
+                        </li>
+                        <li>
+                            <a class="nav-link active" aria-current="page" style="color: white;" href="{% url 'register' %}">Registrar</a>
+                        </li>
+                        {% endif %}
+                        {% if request.session.user_logged_in %}
+                        <li>
+                            <button type="button" class="btn btn-dark" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                <i class="fa fa-circle-user fa-2x"></i>
+                            </button>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Fin Navbar -->
+         <!-- Offcanvas -->
+         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="background-color:#212529;">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">
+                    <img src="{% static  'imgs/page-imgs/Ferremax_logo.png' %}" alt="" width="180" height="70">
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column" style="min-height: 100%;">
+                {% if request.session.user_logged_in %}
+                <a href="" class="btn btn-outline-light mb-3">
+                    <i class="fa fa-user"></i> Perfil de usuario
+                </a>
+                <a href="" class="btn btn-outline-light mb-3">
+                    <i class="fa fa-shopping-cart"></i> Carrito
+                </a>
+                <div>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="fa fa-sign-out-alt"></i> Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <!-- Fin Offcanvas -->
+        
+        <!-- Selector de moneda con switch -->
+        <div class="container my-3 text-end">
+            <span class="me-3">Dólar hoy: <b>${{ dolar }}</b> CLP</span>
+            <div class="form-check form-switch d-inline-block align-middle">
+                <input class="form-check-input" type="checkbox" id="switchMoneda">
+                <label class="form-check-label" for="switchMoneda" id="labelMoneda">Mostrar en USD</label>
+            </div>
+        </div>
+
+        <!-- Inicio de la Sección de Productos -->
+        <section class="section-space">
+            <div class="container-fluid">
+                <div class="row justify-content-center align-items-center text-center">
+                    <div class="col-12 col-md-auto col-lg-6 bg-yellow">
+                        <h3 class="text-title">Conoce Nuestro Amplio Catálogo</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Búsqueda y Filtros -->
+            <div class="container-fluid">
+                <div class="search-filter-section">
+                    <!-- Barra de búsqueda -->
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Buscar herramientas, materiales, equipos..." id="searchInput">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+
+                    <!-- Filtros por categoría -->
+                    <div class="filters-container">
+                        <span class="filter-label">Categorías:</span>
+                        <button class="filter-tag active" data-category="todos">Todos</button>
+                        <button class="filter-tag" data-category="herramientas-manuales">Herramientas Manuales</button>
+                        <button class="filter-tag" data-category="materiales-basicos">Materiales Básicos</button>
+                        <button class="filter-tag" data-category="equipos-seguridad">Equipos Seguridad</button>
+                        <button class="filter-tag" data-category="tornillos-anclajes">Tornillos - Anclajes</button>
+                        <button class="filter-tag" data-category="fijaciones">Fijaciones</button>
+                        <button class="filter-tag" data-category="equipos-medicion">Equipos Medición</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de Productos -->
+            <div class="products-container">
+                <div class="products" id="productsGrid">
+                    {% for producto in productos %}
+                        <div class="card-product" data-category="{{ producto.categoria|default:'general' }}">
+                            {% if producto.destacado %}
+                                <div class="product-badge">Destacado</div>
+                            {% elif producto.oferta %}
+                                <div class="product-badge">Oferta</div>
+                            {% endif %}
+                            
+                            <div class="img-product">
+                                {% if producto.imagen %}
+                                    <img src="{% static 'imgs/card-products/img-product.jpg' %}" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <img src="{% static 'imgs/card-products/img-product.jpg' %}" alt="{{ producto.nombre }}">
+                                {% endif %}
+                            </div>
+                            
+                            <div class="info-product">
+                                <h3 class="text-title">{{ producto.nombre|default:"Taladro Inalámbrico" }}</h3>
+                                <span class="precio-producto" data-precio="{{ producto.precio }}">{{ producto.precio }}</span> <span class="moneda-label">CLP</span>
+                            </div>
+                            
+                            <p>{{ producto.descripcion|default:"Herramienta profesional de alta calidad, ideal para trabajos de construcción y reparación. Incluye batería de larga duración." }}</p>
+                            
+                            <div class="product-actions">
+                                <div class="stars">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <div class="btn-product">
+                                    <a href="{% url 'ver_carrito' %}">
+                                        <button>
+                                        <i class="fas fa-shopping-bag"></i> Comprar
+                                    </button>
+                                    </a>
+                                </div>
+                                <div class="btn-cart">
+                                    <a href="{% url 'agregar_al_carrito' producto.id %}">
+                                        <button>
+                                            <i class="fa-solid fa-cart-shopping"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-tools"></i>
+                            <h3>No hay productos disponibles</h3>
+                            <p>Estamos trabajando para traerte los mejores productos para tu ferretería.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        <!-- Fin de la Sección de Productos -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-color shadow-lg" id="footer-section">
+        <div class="container">
+            <div class="row text-center text-md-start">
+                <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-4">
+                    <div>
+                        <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="Ferramax" class="img-fluid" style="max-height: 60px;" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-4" style="color: white;">
+                    <div>
+                        <h5 class="text-title">Información</h5>
+                        <hr style="border-color: #ffc107;">
+                        <ul class="list-unstyled">
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Sobre Nosotros</a></li>
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Contáctanos</a></li>
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Política de Privacidad</a></li>
+                            <li><a href="#" style="color: white;" class="text-decoration-none">Términos y Condiciones</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-4" style="color: white;">
+                    <h5 class="text-title">Medios de Pago</h5>
+                    <hr style="border-color: #ffc107;">
+                    <ul class="list-unstyled">
+                        <li><a href="#" style="color: white;" class="text-decoration-none">Visa</a></li>
+                        <li><a href="#" style="color: white;" class="text-decoration-none">Mastercard</a></li>
+                        <li><a href="#" style="color: white;" class="text-decoration-none">American Express</a></li>
+                        <li><a href="#" style="color: white;" class="text-decoration-none">PayPal</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 text-center" style="color: white;">
+                    <p>&copy; 2024 Ferramax. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Log In -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background-color:#212529;">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">
+                            <img src="{% static 'imgs/page-imgs/Ferremax_logo.png' %}" alt="" width="180" height="70" class="img-fluid">
+                        </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label" style="color:white;">Email</label>
+                                <input type="email" class="form-control" id="loginEmail" name="email" placeholder="Ingresa su email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label" style="color:white;">Contraseña</label>
+                                <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Ingresa su contraseña" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-dark" id="btn-login" style="font-size: larger;">Sign In</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script rel="stylesheet" href="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/producto.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script>
+        var dolar = parseFloat("{{ dolar|default:'0'|floatformat:'2' }}");
+        var enUSD = false;
+
+        document.getElementById('switchMoneda').addEventListener('change', function() {
+            const precios = document.querySelectorAll('.precio-producto');
+            const monedas = document.querySelectorAll('.moneda-label');
+            const label = document.getElementById('labelMoneda');
+            precios.forEach((span, i) => {
+                let precioCLP = parseFloat(span.getAttribute('data-precio'));
+                if (this.checked) {
+                    let precioUSD = (precioCLP / dolar).toFixed(2);
+                    span.textContent = precioUSD;
+                    if (monedas[i]) monedas[i].textContent = 'USD';
+                    label.textContent = 'Mostrar en CLP';
+                } else {
+                    span.textContent = precioCLP;
+                    if (monedas[i]) monedas[i].textContent = 'CLP';
+                    label.textContent = 'Mostrar en USD';
+                }
+            });
+            enUSD = this.checked;
+        });
+    </script>
+</body>
+</html>

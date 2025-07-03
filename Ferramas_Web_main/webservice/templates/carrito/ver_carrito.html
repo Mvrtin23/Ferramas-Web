@@ -1,0 +1,15 @@
+<!-- webservice/templates/carrito/ver_carrito.html -->
+<h1>Tu Carrito</h1>
+
+{% if carrito %}
+    <ul>
+        {% for item in carrito %}
+            <li>{{ item.quantity }} x {{ item.product.nombre }} - ${{ item.get_total_price }}</li>
+        {% endfor %}
+    </ul>
+    <p><strong>Total: ${{ total }}</strong></p>
+{% else %}
+    <p>El carrito está vacío.</p>
+{% endif %}
+
+<a href="{% url 'lista_productos' %}">Volver al catálogo</a>
